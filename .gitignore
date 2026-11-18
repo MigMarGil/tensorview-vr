@@ -1,0 +1,20 @@
+# build outputs
+build/
+build_desktop/
+.gradle/
+.cxx/
+*.apk
+*.aab
+# local / secrets
+local.properties
+*.keystore
+*.jks
+venv/
+android_sdk/
+__pycache__/
+.idea/
+.vscode/
+
+# node
+node_modules/
+package-lock.json.bak

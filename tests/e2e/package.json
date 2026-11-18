@@ -1,0 +1,7 @@
+{
+  "name": "tensorview-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node xr_session.mjs" },
+  "devDependencies": { "@sparticuz/chromium": "^153.0.0", "iwer": "^2.8.0", "puppeteer-core": "^25.0.0" }
+}
