@@ -1,44 +1,68 @@
 # TensorView VR
 
-**Explore ONNX neural networks as interactive 3D spatial graphs in Meta Quest.**
+**Explore neural networks in virtual reality.**
 
-TensorView VR is a spatial ONNX graph explorer and static compute analyzer designed for Meta Quest. It transforms a neural network's computation graph into a navigable 3D environment where each layer becomes an interactive block.
+TensorView VR is a spatial ONNX graph explorer and static compute analyzer designed for Meta Quest. It transforms neural network computation graphs into interactive 3D environments where developers can explore model architecture, inspect individual layers, and understand computational complexity through spatial interaction.
 
-Point at a layer and pinch to inspect its tensor shapes, parameter count, estimated FLOPs, and estimated activation memory — using hand interaction, without requiring controllers.
+Instead of looking at a traditional 2D graph, step inside your model.
 
-**Live demo:** https://migmargil.github.io/tensorview-vr/
+Point at a layer and pinch to inspect its tensor shapes, parameter count, estimated FLOPs, and estimated activation memory — using your hands, without requiring controllers.
+
+<details>
+<summary>Project links</summary>
+
+- **Live WebXR Demo:** https://migmargil.github.io/tensorview-vr/
+- **Source Code:** https://github.com/MigMarGil/tensorview-vr
+- **Author:** [@MigMarGil](https://github.com/MigMarGil)
+
+</details>
 
 ---
 
+## Why TensorView VR?
+
+Neural networks are often represented as complex diagrams and tables. Understanding their topology, branching paths, and computational costs can become difficult as models grow.
+
+TensorView VR explores a different approach: spatial visualization.
+
+By turning computation graphs into interactive 3D structures, the project aims to make model architecture easier to navigate and computational hotspots easier to identify.
+
 ## Features
 
-### 3D Neural Network Visualization
+### 1. Interactive 3D Neural Network Visualization
+
 - Converts ONNX computation graphs into interactive 3D layouts.
-- Displays layers as spatial blocks connected by data-flow beams.
+- Represents layers as spatial blocks connected by data-flow beams.
 - Organizes complex graphs into layered, snake-like rows.
-- Separates branching paths in depth to make graph structure easier to understand.
+- Separates branching paths in depth.
 - Uses block size to represent estimated computational cost.
 - Uses operator-specific colors to distinguish layer types.
 - Includes animated pulses to visualize data flow.
 
-### ONNX Model Analysis
-- Dependency-free JavaScript protobuf reader.
-- Native C++17 ONNX parser implementation.
-- Reads graph nodes, initializers, and tensor shapes.
-- Estimates parameter counts.
-- Estimates FLOPs for supported operators, including:
-  - Conv
-  - Depthwise convolution
-  - Gemm
-  - MatMul
-  - Elementwise operations
-- Estimates FP32 activation size per layer.
+### 2. ONNX Model Analysis
 
-**Important:** These are static estimates. They are not measured inference latency, peak live memory, GPU utilization, or runtime profiling results.
+TensorView VR includes a dependency-free JavaScript protobuf reader and a native C++17 parser.
 
-### Built-in Demonstration Models
+The analyzer extracts:
+- Graph nodes.
+- Initializers.
+- Tensor shapes.
+- Parameter counts.
+- Estimated FLOPs.
+- Estimated FP32 activation memory per layer.
 
-TensorView VR includes three demonstration architectures:
+Supported computational estimates include:
+- Conv
+- Depthwise convolution
+- Gemm
+- MatMul
+- Elementwise operations
+
+**Important:** These are static estimates, not measured inference latency, peak live memory, GPU utilization, or runtime profiling results.
+
+### 3. Built-in Demonstration Models
+
+Three synthetic demonstration architectures are included:
 
 | Model | Architecture |
 |---|---|
@@ -46,13 +70,18 @@ TensorView VR includes three demonstration architectures:
 | MobileNet-style | Depthwise-separable convolutions and inverted residuals |
 | Tiny Transformer | Parallel Q/K/V projections, attention, and feed-forward network |
 
-Switch between the demonstration models using the in-air interface.
+Switch between models using the in-air interface.
 
 You can also load your own ONNX model through the desktop page using a local `.onnx` file or a URL:
 
-`?model=<url>`
+```text
+?model=<url>
+```
 
-### Hands-First Interaction
+### 4. Hands-First Interaction
+
+Designed around spatial interaction rather than traditional desktop controls.
+
 - WebXR hand interaction through IWSDK.
 - Quest far-field hand pointer targeting.
 - Pinch to select and inspect layers.
@@ -61,18 +90,21 @@ You can also load your own ONNX model through the desktop page using a local `.o
 - Visualized tracked hand joints.
 - Controller input supported as a fallback.
 
-### Heat Map and Accessibility
+### 5. Heat Map and Accessibility
+
 - Per-model compute heat map.
-- High-contrast mode with a black background, bright text, and white outlines.
+- High-contrast mode with black background, bright text, and white outlines.
 - Keyboard shortcut `C` to toggle high contrast.
 - Keyboard shortcut `H` to toggle the heat map.
 
-### Guided Onboarding
+### 6. Guided Onboarding
+
 A five-step interactive tutorial introduces the main gestures and controls.
 
 The progress indicator advances when the corresponding interaction is performed.
 
-### Procedural Sound Design
+### 7. Procedural Sound Design
+
 Interface sounds are synthesized at runtime for:
 - Hover
 - Selection
@@ -82,17 +114,23 @@ Interface sounds are synthesized at runtime for:
 
 No external audio assets are required.
 
-### Desktop Preview
+### 8. Desktop Preview
+
 The desktop version provides an orbit-and-click preview of the visualization.
 
 Keyboard shortcuts:
-- `1`, `2`, `3`: Switch demonstration models.
-- `H`: Toggle heat map.
-- `R`: Reset the view.
+
+| Key | Action |
+|---|---|
+| `1` | Switch to ResNet-style model |
+| `2` | Switch to MobileNet-style model |
+| `3` | Switch to Tiny Transformer |
+| `H` | Toggle heat map |
+| `R` | Reset the view |
 
 ---
 
-## Technology
+## Technology Stack
 
 | Component | Technology |
 |---|---|
@@ -108,7 +146,7 @@ Keyboard shortcuts:
 
 ---
 
-## Project Structure
+## Project Architecture
 
 ```text
 tensorview-vr/
@@ -158,15 +196,15 @@ Located in `app/src/main/cpp/`.
 
 ## Getting Started
 
-### Option 1: Meta Quest Browser
+### Option 1: Try the Live Demo
 
-Open the live demo in Meta Quest Browser:
+Open the public application:
 
-https://migmargil.github.io/tensorview-vr/
+**https://migmargil.github.io/tensorview-vr/**
 
-Enter VR when the application is loaded.
+For immersive interaction, open the page in Meta Quest Browser on a compatible headset and enter VR.
 
-The availability of immersive functionality depends on browser and device WebXR support.
+The desktop version also provides a preview of the 3D visualization.
 
 ### Option 2: Run Locally
 
@@ -177,7 +215,7 @@ git clone https://github.com/MigMarGil/tensorview-vr.git
 cd tensorview-vr
 ```
 
-Run the local server:
+Start the local server:
 
 ```bash
 ./serve.sh
@@ -188,6 +226,8 @@ To rebuild the web application:
 ```bash
 ./build_web.sh
 ```
+
+For immersive WebXR functionality, use a compatible browser and an appropriate secure context.
 
 ### Option 3: Build the Native Quest APK
 
@@ -276,7 +316,7 @@ npm install
 npm test
 ```
 
-These tests were not executed during this submission review. Do not interpret their presence as evidence that the automated XR suite has passed.
+These tests were not executed during this submission review. Their presence should not be interpreted as evidence that the automated XR suite has passed.
 
 ---
 
@@ -288,23 +328,25 @@ The following limitations are important:
 
 - Bundled ONNX files are synthetic demonstration architectures generated for this project. They are not trained benchmark models.
 - FLOPs and activation memory are static estimates, not runtime measurements.
-- The web application has not been independently verified on a physical Meta Quest during this submission review.
+- The WebXR application has not been independently verified on a physical Meta Quest during this submission review.
 - The screenshots and draft demonstration video are desktop-preview captures, not evidence of a live immersive Quest session.
 - The automated IWER end-to-end test suite was not executed during this review.
 - The native OpenXR implementation is experimental and has not been validated on a physical headset.
 - The native implementation does not necessarily include every feature available in the web application.
 
-These limitations are stated to distinguish implemented functionality from independently verified behavior.
+These limitations distinguish implemented functionality from independently verified behavior.
 
 ---
 
-## Competition Submission
+## Competition
 
-TensorView VR was prepared for the **Meta VR Start Developer Competition 2026**.
+**Meta VR Start Developer Competition 2026**
 
-The project focuses on making neural network architecture and computational structure easier to explore through spatial interaction in virtual reality.
+TensorView VR was developed for the Meta VR Start Developer Competition 2026.
 
-The goal is to provide developers with a more intuitive way to inspect ONNX models, understand graph topology, and identify computationally expensive layers.
+The project explores how virtual reality and spatial interaction can make neural network architecture easier to understand.
+
+Its goal is to give developers a more intuitive way to inspect ONNX models, navigate graph topology, and identify computationally expensive layers.
 
 ---
 
@@ -312,9 +354,9 @@ The goal is to provide developers with a more intuitive way to inspect ONNX mode
 
 **Miguel Martín Gil**
 
-GitHub: [@MigMarGil](https://github.com/MigMarGil)
-
-Repository: [MigMarGil/tensorview-vr](https://github.com/MigMarGil/tensorview-vr)
+- GitHub: [@MigMarGil](https://github.com/MigMarGil)
+- Repository: [MigMarGil/tensorview-vr](https://github.com/MigMarGil/tensorview-vr)
+- Live Demo: https://migmargil.github.io/tensorview-vr/
 
 ---
 
@@ -322,4 +364,4 @@ Repository: [MigMarGil/tensorview-vr](https://github.com/MigMarGil/tensorview-vr
 
 This project is distributed under the MIT License.
 
-See [LICENSE](LICENSE) for details.
+See [LICENCE](LICENCE) for details.
