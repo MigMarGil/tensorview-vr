@@ -1,72 +1,325 @@
 # TensorView VR
 
-**Spatial ONNX graph explorer and static compute analyzer for Meta Quest.** Load an ONNX model and walk through its
-computation graph in 3D: every layer is a block you can point at and pinch to inspect its shapes,
-parameter count, FLOPs and activation memory — with your hands, no controllers needed.
+**Explore ONNX neural networks as interactive 3D spatial graphs in Meta Quest.**
 
-| Build | Where | Run it |
-|---|---|---|
-| **WebXR / IWSDK (primary, link-based)** | source `web/` → production build committed in `docs/` | Open the GitHub Pages link in the Meta Quest Browser → **ENTER VR**. Locally: `./serve.sh`. Rebuild: `./build_web.sh` |
-| Native OpenXR (Quest APK) | `app/` (C++17, OpenXR + GLES3) | `./build_quest.sh` (needs Android SDK/NDK) |
+TensorView VR is a spatial ONNX graph explorer and static compute analyzer designed for Meta Quest. It transforms a neural network's computation graph into a navigable 3D environment where each layer becomes an interactive block.
 
-**Live demo:** `https://migmargil.github.io/tensorview-vr/` (create the public repository `migmargil/tensorview-vr` and enable Pages: `main` branch, `/docs` folder)
+Point at a layer and pinch to inspect its tensor shapes, parameter count, estimated FLOPs, and estimated activation memory — using hand interaction, without requiring controllers.
+
+**Live demo:** https://migmargil.github.io/tensorview-vr/
+
+---
 
 ## Features
 
-| Area | What it does |
+### 3D Neural Network Visualization
+- Converts ONNX computation graphs into interactive 3D layouts.
+- Displays layers as spatial blocks connected by data-flow beams.
+- Organizes complex graphs into layered, snake-like rows.
+- Separates branching paths in depth to make graph structure easier to understand.
+- Uses block size to represent estimated computational cost.
+- Uses operator-specific colors to distinguish layer types.
+- Includes animated pulses to visualize data flow.
+
+### ONNX Model Analysis
+- Dependency-free JavaScript protobuf reader.
+- Native C++17 ONNX parser implementation.
+- Reads graph nodes, initializers, and tensor shapes.
+- Estimates parameter counts.
+- Estimates FLOPs for supported operators, including:
+  - Conv
+  - Depthwise convolution
+  - Gemm
+  - MatMul
+  - Elementwise operations
+- Estimates FP32 activation size per layer.
+
+**Important:** These are static estimates. They are not measured inference latency, peak live memory, GPU utilization, or runtime profiling results.
+
+### Built-in Demonstration Models
+
+TensorView VR includes three demonstration architectures:
+
+| Model | Architecture |
 |---|---|
-| **ONNX parsing** | Dependency-free protobuf reader (JS and C++ implementations that agree): nodes, initializers, shapes. Parameter counts, estimated FLOPs (Conv / depthwise / Gemm / MatMul / elementwise) and estimated FP32 activation size per layer. These are static estimates, not measured inference latency, peak live memory, GPU utilization, or runtime profiling. |
-| **Three built-in architectures** | ResNet-style CNN (residual skips), MobileNet-style (depthwise-separable + inverted residuals), tiny Transformer (parallel Q/K/V, attention, FFN). Switch live with in-air buttons. Your own model: drop an `.onnx` on the desktop page or use `?model=<url>`. |
-| **Spatial layout** | Layered DAG folded into snake rows; branches split in depth. Block size = compute cost; color = operator type, or a per-model **heat map** (button *COLOR*). Animated pulses show data flow. |
-| **Inspector + hotspots** | Pinch a layer: shapes, params, FLOPs, memory, each with its **share of the whole model**. Nothing selected: the top-3 compute hotspots. |
-| **Accessibility** | High-contrast mode (button *CONTRAST* / key C): pure black background, white outlines, bright text and edges. |
-| **Hands-first input** | WebXR (via IWSDK) target ray (Quest's far-field hand pointer) + pinch to select; pinch empty space and drag to move the graph; **two hands to zoom**; tracked hand joints are drawn. Controllers work as a fallback. |
-| **Guided first minutes** | 5-step onboarding with a progress bar that advances only when you perform each gesture. |
-| **Sound design** | Procedural UI sounds (hover, select, grab, release, step) synthesized at runtime — no audio assets. |
-| **Desktop preview** | Orbit / click preview with keyboard shortcuts (1/2/3 models, H heat, R reset). |
+| ResNet-style CNN | Convolutional network with residual connections |
+| MobileNet-style | Depthwise-separable convolutions and inverted residuals |
+| Tiny Transformer | Parallel Q/K/V projections, attention, and feed-forward network |
 
-## Verification
+Switch between the demonstration models using the in-air interface.
 
-| Check | How |
+You can also load your own ONNX model through the desktop page using a local `.onnx` file or a URL:
+
+`?model=<url>`
+
+### Hands-First Interaction
+- WebXR hand interaction through IWSDK.
+- Quest far-field hand pointer targeting.
+- Pinch to select and inspect layers.
+- Pinch empty space and drag to move the graph.
+- Two-hand interaction for zooming.
+- Visualized tracked hand joints.
+- Controller input supported as a fallback.
+
+### Heat Map and Accessibility
+- Per-model compute heat map.
+- High-contrast mode with a black background, bright text, and white outlines.
+- Keyboard shortcut `C` to toggle high contrast.
+- Keyboard shortcut `H` to toggle the heat map.
+
+### Guided Onboarding
+A five-step interactive tutorial introduces the main gestures and controls.
+
+The progress indicator advances when the corresponding interaction is performed.
+
+### Procedural Sound Design
+Interface sounds are synthesized at runtime for:
+- Hover
+- Selection
+- Grab
+- Release
+- Tutorial steps
+
+No external audio assets are required.
+
+### Desktop Preview
+The desktop version provides an orbit-and-click preview of the visualization.
+
+Keyboard shortcuts:
+- `1`, `2`, `3`: Switch demonstration models.
+- `H`: Toggle heat map.
+- `R`: Reset the view.
+
+---
+
+## Technology
+
+| Component | Technology |
 |---|---|
-| ONNX parser cross-check against native C++ parser | `node tests/web_test.mjs` (totals match for 3 models; hand-calculated conv/gemm values) |
-| Automated XR interaction test | `cd tests/e2e && npm install && npm test` — intended to exercise an IWER-emulated XR session. Not executed in this review environment; do not claim this test passed unless you run it successfully. |
-| Native build | Experimental OpenXR/C++ implementation; not validated on a physical headset in this submission review. |
+| Web application | JavaScript, Three.js |
+| XR framework | IWSDK |
+| Immersive interaction | WebXR |
+| Native application | C++17 |
+| Native XR | OpenXR |
+| Graphics | OpenGL ES 3 |
+| Model format | ONNX |
+| Web build | Vite |
+| Native build | Gradle, Android SDK and NDK |
 
-## Build the native Quest APK (optional)
+---
 
-Requirements: JDK 17, Gradle 8.4, Android SDK (platform 34, build-tools 34.0.0), NDK 25.2.9519653, CMake 3.22.1. (`build_quest.sh` installs the SDK platform for you if `sdkmanager` is on PATH.)
+## Project Structure
+
+```text
+tensorview-vr/
+├── app/                  # Native Android / OpenXR application
+├── docs/                 # Built web application for GitHub Pages
+├── submission/           # Competition submission materials
+├── tests/                # Parser and interaction tests
+├── tools/                # Model generation and utilities
+├── web/                  # WebXR application source
+├── README.md
+├── build.gradle
+├── build_quest.sh
+├── build_web.sh
+├── deploy.sh
+├── gradle.properties
+├── serve.sh
+└── settings.gradle
+```
+
+### WebXR source map
+
+The main web application is located in `web/src/` and builds into `docs/`.
+
+| File | Responsibility |
+|---|---|
+| `main.js` | IWSDK world creation and system setup |
+| `app.js` | Scene, pointers, gestures, and HUD integration |
+| `onnx.js` | ONNX parser and graph layout |
+| `logic.js` | Gesture and onboarding logic |
+| `hud.js` | Canvas-based interface panels |
+| `audio.js` | Procedural sound effects |
+
+### Native C++ source map
+
+Located in `app/src/main/cpp/`.
+
+| File | Responsibility |
+|---|---|
+| `xr_app.cpp` | Android entry point, OpenXR instance/session/swapchains, hand tracking, actions, frame loop, scene, and HUD |
+| `audio.cpp / audio.h` | AAudio procedural sound effects |
+| `gl_batch.cpp / gl_batch.h` | GLES3 batch renderer for boxes, beams, and bitmap text |
+| `onnx_model.cpp / onnx_model.h` | ONNX protobuf parser, cost model, and graph layout |
+| `tv_math.h` | Vectors, quaternions, FOV projection, and view matrix |
+| `font5x7.h` | Embedded 5×7 bitmap font |
+
+---
+
+## Getting Started
+
+### Option 1: Meta Quest Browser
+
+Open the live demo in Meta Quest Browser:
+
+https://migmargil.github.io/tensorview-vr/
+
+Enter VR when the application is loaded.
+
+The availability of immersive functionality depends on browser and device WebXR support.
+
+### Option 2: Run Locally
+
+Clone the repository:
 
 ```bash
-./build_quest.sh                # creates a signing key if missing, generates the sample model if missing, runs gradle assembleRelease
-# -> app/build/outputs/apk/release/app-release.apk
+git clone https://github.com/MigMarGil/tensorview-vr.git
+cd tensorview-vr
+```
+
+Run the local server:
+
+```bash
+./serve.sh
+```
+
+To rebuild the web application:
+
+```bash
+./build_web.sh
+```
+
+### Option 3: Build the Native Quest APK
+
+The native implementation uses C++17, OpenXR, and OpenGL ES 3.
+
+Requirements:
+- JDK 17
+- Gradle 8.4
+- Android SDK
+- Android platform 34
+- Android Build Tools 34.0.0
+- Android NDK 25.2.9519653
+- CMake 3.22.1
+
+Build:
+
+```bash
+./build_quest.sh
+```
+
+The script generates a signing key if missing, generates the sample model if needed, and runs the release Gradle build.
+
+Expected output:
+
+```text
+app/build/outputs/apk/release/app-release.apk
+```
+
+Install on a connected Android device:
+
+```bash
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-## Test the parser on your PC
+**Note:** The native implementation is experimental and has not been validated on a physical Meta Quest as part of this submission review.
+
+---
+
+## Testing and Verification
+
+### JavaScript ONNX parser
+
+Run:
 
 ```bash
-python3 -m venv venv && ./venv/bin/pip install onnx numpy
-./venv/bin/python tools/make_model.py /tmp/models      # writes the 3 sample models
-g++ -std=c++17 tests/test_onnx.cpp app/src/main/cpp/onnx_model.cpp -Iapp/src/main/cpp -o /tmp/test_onnx
+node tests/web_test.mjs
+```
+
+The parser tests cover three demonstration models and compare relevant totals against the native C++ parser, including hand-calculated convolution and Gemm cases.
+
+### Native C++ parser
+
+Generate the demonstration models:
+
+```bash
+python3 -m venv venv
+./venv/bin/pip install onnx numpy
+./venv/bin/python tools/make_model.py /tmp/models
+```
+
+Compile the parser test:
+
+```bash
+g++ -std=c++17 \
+  tests/test_onnx.cpp \
+  app/src/main/cpp/onnx_model.cpp \
+  -Iapp/src/main/cpp \
+  -o /tmp/test_onnx
+```
+
+Run:
+
+```bash
 /tmp/test_onnx /tmp/models/tiny_transformer.onnx
 ```
 
-## Code map
+### Automated XR interaction tests
 
-**WebXR (`web/src/`, built to `docs/`):** `main.js` (IWSDK `World.create` + system), `app.js` (scene, pointers, gestures, HUD wiring), `onnx.js` (parser + layout), `logic.js` (pure gesture/onboarding logic), `hud.js` (canvas panels), `audio.js`.
+The repository includes an IWER-based XR interaction test setup.
 
-**Native (`app/src/main/cpp`):**
+To run:
 
-| File | Role |
-|---|---|
-| `xr_app.cpp` | `android_main`, OpenXR instance/session/swapchains, hand tracking, actions, frame loop, scene + HUD |
-| `audio.cpp/.h` | AAudio procedural sound effects |
-| `gl_batch.cpp/.h` | GLES3 batch renderer: solid boxes, beams, bitmap text (single shader + atlas) |
-| `onnx_model.cpp/.h` | ONNX protobuf parser, cost model, graph layout |
-| `tv_math.h` | Vectors, quaternions, OpenXR FOV projection, view matrix |
-| `font5x7.h` | Embedded 5x7 bitmap font |
+```bash
+cd tests/e2e
+npm install
+npm test
+```
 
-## Validation limits
+These tests were not executed during this submission review. Do not interpret their presence as evidence that the automated XR suite has passed.
 
-The bundled ONNX files are synthetic demonstration architectures generated for this project; they are not trained benchmark models. The WebXR application has not been independently verified on a physical Meta Quest in this review. The screenshots and accompanying draft video are desktop-preview captures, not proof of a live immersive session.
+---
+
+## Validation and Limitations
+
+TensorView VR is a developer visualization and static analysis tool.
+
+The following limitations are important:
+
+- Bundled ONNX files are synthetic demonstration architectures generated for this project. They are not trained benchmark models.
+- FLOPs and activation memory are static estimates, not runtime measurements.
+- The web application has not been independently verified on a physical Meta Quest during this submission review.
+- The screenshots and draft demonstration video are desktop-preview captures, not evidence of a live immersive Quest session.
+- The automated IWER end-to-end test suite was not executed during this review.
+- The native OpenXR implementation is experimental and has not been validated on a physical headset.
+- The native implementation does not necessarily include every feature available in the web application.
+
+These limitations are stated to distinguish implemented functionality from independently verified behavior.
+
+---
+
+## Competition Submission
+
+TensorView VR was prepared for the **Meta VR Start Developer Competition 2026**.
+
+The project focuses on making neural network architecture and computational structure easier to explore through spatial interaction in virtual reality.
+
+The goal is to provide developers with a more intuitive way to inspect ONNX models, understand graph topology, and identify computationally expensive layers.
+
+---
+
+## Author
+
+**Miguel Martín Gil**
+
+GitHub: [@MigMarGil](https://github.com/MigMarGil)
+
+Repository: [MigMarGil/tensorview-vr](https://github.com/MigMarGil/tensorview-vr)
+
+---
+
+## License
+
+This project is distributed under the MIT License.
+
+See [LICENSE](LICENSE) for details.
